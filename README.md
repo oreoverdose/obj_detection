@@ -30,10 +30,16 @@ source devel/setup.bash
 cd obj_detection/launch
 gedit obj_detection.launch
 ```
-2. Change the parameters to match with your setup
-### Launching
-Launch the obj_detection node with `roslaunch obj_detection obj_detection.launch`
-This will create a node that publishes to 3 topics:
+2. Change the values to match with your setup
+This packcage will create a node that publishes to 3 topics:
 * obj_coord - float array that has the coordinates of the object relative to the laptop in cm
 * image - Image from the current captured frame
 * pxls - integer array of the coordinates of the bottom-most pixel in the contour of the object in the image
+### Launching
+#### Individually
+Launch the obj_detection node with `roslaunch obj_detection obj_detection.launch`
+#### Within another launch
+Copy the contents of the obj_detection.launch files except <launch></launch> and paste into your desired launch file
+
+
+
