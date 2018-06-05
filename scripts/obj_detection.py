@@ -16,13 +16,10 @@ f_length = rospy.get_param("f_length")
 asp_rat = rospy.get_param("asp_rat")
 #horizontal angle of view, calculated
 horiz_ang_view = numpy.arctan(f_length/2/b_length)*2
-print(horiz_ang_view)
 #vertical angle of view, calculated
-vert_ang_view = numpy.arcsin(f_length/2*asp_rat/numpy.sqrt(b_length*b_length+h_cam*h_cam))
-print(vert_ang_view)
+vert_ang_view = numpy.arcsin(f_length/2*asp_rat/numpy.sqrt(b_length*b_length+h_cam*h_cam))*2
 #pitch angle
-pitch_ang = numpy.arctan(b_length/h_cam) + vert_ang_view
-print(pitch_ang)
+pitch_ang = numpy.arctan(b_length/h_cam) + vert_ang_view/2
 #height of object
 h_obj = rospy.get_param("h_obj")
 #diameter of object
@@ -121,10 +118,10 @@ def talker():
 		x = findX(x_cam, y_cam)
 		y = findY(x_cam, y_cam)
 			
-		coord_vect = Float32MultiArray(data=[x_cam,y_cam,h_obj_cam/2])
+		coord_vect = Float32MultiArray(data=[x,y,h_obj_cam/2])
 		#rospy.loginfo(coord_vect)
 		coord_pub.publish(coord_vect)
-		   #print(x,y,h_obj_cam,sep='   ')
+		#print(x,y)
 		    #wait 25miliseconds  
 		key = cv2.waitKey(25)
 		if key == 27:#exit on ESC
