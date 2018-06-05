@@ -9,11 +9,14 @@ from std_msgs.msg import Int32MultiArray
 from sensor_msgs.msg import Image
 import rospy
 
+#tells rospy the name of your node
+#anonymous = True insures that your node has a unique name by adding random numbers to the end of the name
+rospy.init_node('obj_detect',anonymous = True)
 #height of camera
-h_cam = rospy.get_param("h_cam")
-b_length = rospy.get_param("b_length")
-f_length = rospy.get_param("f_length")
-asp_rat = rospy.get_param("asp_rat")
+h_cam = rospy.get_param("~h_cam")
+b_length = rospy.get_param("~b_length")
+f_length = rospy.get_param("~f_length")
+asp_rat = 3.0/4
 #horizontal angle of view, calculated
 horiz_ang_view = numpy.arctan(f_length/2/b_length)*2
 #vertical angle of view, calculated
@@ -21,9 +24,9 @@ vert_ang_view = numpy.arcsin(f_length/2*asp_rat/numpy.sqrt(b_length*b_length+h_c
 #pitch angle
 pitch_ang = numpy.arctan(b_length/h_cam) + vert_ang_view/2
 #height of object
-h_obj = rospy.get_param("h_obj")
+h_obj = rospy.get_param("~h_obj")
 #diameter of object
-d_obj = rospy.get_param("d_obj")
+d_obj = rospy.get_param("~d_obj")
 h_obj_cam = h_obj/2
 h = h_cam - h_obj_cam + (h_obj/2)
 
@@ -64,9 +67,7 @@ def talker():
 	coord_pub = rospy.Publisher('obj_coord',Float32MultiArray,queue_size = 10)
 	img_pub = rospy.Publisher('image',Image,queue_size = 10)
 	pxl_pub = rospy.Publisher('pxls',Int32MultiArray,queue_size = 10)
-	#tells rospy the name of your node
-	#anonymous = True insures that your node has a unique name by adding random numbers to the end of the name
-	rospy.init_node('obj_detect',anonymous = True)
+	
 	#define the lower and upper boundaries of the wood in the HSV color space
 	    #Finding HSV values to track:
 		#green = numpy.uint8([[[0,255,0]]])
@@ -74,11 +75,11 @@ def talker():
 		#print hsv_green
 		#[H-10,100,100] and [H+10,255,255]
 	#purple
-	wood_lower = numpy.array([125,60,50])
-	wood_upper = numpy.array([175,255,255])
+	#wood_lower = numpy.array([125,60,50])
+	#wood_upper = numpy.array([175,255,255])
 	#blue
-	#wood_lower = numpy.array([95,60,60])
-	#wood_upper = numpy.array([120,255,255])
+	wood_lower = numpy.array([95,60,60])
+	wood_upper = numpy.array([120,255,255])
 	
 	#print(frame.shape)
 	while not rospy.is_shutdown():

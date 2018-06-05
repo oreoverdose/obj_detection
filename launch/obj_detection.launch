@@ -1,0 +1,22 @@
+<launch>
+    <node name="obj_detect" pkg="obj_detection" type="obj_detection.py" respawn="false">
+        
+        <!-- Set parameters -->
+	
+	<!-- height of the camera from the ground -->
+	<param name="h_cam" value="19.48" type="double"/>
+		
+	<!-- length of the distance between the camera and the image frame on the ground -->
+	<param name="b_length" value="11.75" type="double"/>
+		
+	<!-- length of the image frame on the ground -->
+	<param name="f_length" value="22" type="double"/>
+	
+	<!-- height of object -->
+	<param name="h_obj" value="4.9" type="double"/>
+	
+	<!-- diameter of object -->
+	<param name="d_obj" value="2.3" type="double"/>
+		
+    </node>
+ </launch>
