@@ -19,4 +19,6 @@
 	<param name="d_obj" value="2.3" type="double"/>
 		
     </node>
+    
+    <node name="coord_listener" pkg="obj_detection" type="coord_listener.py" respawn="false" output="screen"/>
  </launch>

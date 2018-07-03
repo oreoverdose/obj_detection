@@ -103,6 +103,7 @@ def talker():
 		
 	    #convert cv::Mat into a ros image message, CvBridge provides the following function
 		image_message = br.cv2_to_imgmsg(frame,encoding='passthrough')
+		
 		img_pub.publish(image_message)
 		#rospy.loginfo(image_message)
 		
@@ -120,7 +121,7 @@ def talker():
 		y = findY(x_cam, y_cam)
 			
 		coord_vect = Float32MultiArray(data=[x,y,h_obj_cam/2])
-		#rospy.loginfo(coord_vect)
+		rospy.loginfo(coord_vect)
 		coord_pub.publish(coord_vect)
 		#print(x,y)
 		    #wait 25miliseconds  
