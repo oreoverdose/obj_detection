@@ -13,7 +13,7 @@ def findBotPixel (contours):
           for ycord in pixel:
                if bottom_pixel[1]<ycord[0][1]:
                     bottom_pixel = ycord[0]
-          return(bottom_pixel)
+     return(bottom_pixel)
           
 def getLocalObjPos(pix):
 	#pixel position turns into uvPoint
@@ -21,7 +21,7 @@ def getLocalObjPos(pix):
 		np.array([pix[0]],np.float32),
 		np.array([pix[1]],np.float32),
 		np.array([1],np.float32)],np.float32)
-		#s*uvPoint = cameraMatrix.dot(rtMatrix).dot(xyzPoint)
+	#s*uvPoint = cameraMatrix.dot(rtMatrix).dot(xyzPoint)
 	#solve for s
 	camMatInv = np.linalg.inv(cameraMatrix)
 	rotMatInv = np.linalg.inv(rotationMatrix)
@@ -39,25 +39,33 @@ cameraMatrix = np.array([
 	np.array([0.,0.,1],np.float64)],np.float64)
 distCoeffs = np.array([np.array([0.07580839,-0.24187201,-0.00365459,-0.0003942,0.10928811],np.float64)],np.float64)
 	
-objectPoints = np.array([
-	np.array([-22,0.,0.],np.float32),
-	np.array([22,0.,0.],np.float32),
-	np.array([-22,34,0.],np.float32),
-	np.array([22,34,0.],np.float32),
-	np.array([0,18,0.],np.float32)],np.float32)
+objectPoints = 2*np.array([
+	np.array([-13.5,0.,0.],np.float32),
+	np.array([13.5,0.,0.],np.float32),
+	np.array([-13.5,22,0.],np.float32),
+	np.array([13.5,22,0.],np.float32),
+	np.array([13.5,11.,0.],np.float32),
+	np.array([-13.5,11.,0.],np.float32),
+	np.array([0,11,0.],np.float32),
+	np.array([0,22,0.],np.float32),
+	np.array([0,0,0.],np.float32)],np.float32)
 	
 imagePoints = np.array([
-	np.array([64.,471.],np.float32),
-	np.array([606.,478.],np.float32),
-	np.array([175.,284.],np.float32),
-	np.array([485.,280.],np.float32),
-	np.array([327.,351.],np.float32)],np.float32)
+	np.array([5.,673.],np.float32),
+	np.array([1258.,667.],np.float32),
+	np.array([227.,226.],np.float32),
+	np.array([974.,216.],np.float32),
+	np.array([1079.,375.],np.float32),
+	np.array([178.,385.],np.float32),
+	np.array([623.,375.],np.float32),
+	np.array([622.,223.],np.float32),
+	np.array([623,672.],np.float32)],np.float32)
 			
 retval,rvec,tvec = cv2.solvePnP(objectPoints,imagePoints,cameraMatrix,distCoeffs)
 rotationMatrix,jacobian=cv2.Rodrigues(rvec)
 
 
-file = open('webcam_data','a')
+file = open('webcam_data_adj','a')
 filewriter = csv.writer(file,delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
 
 #define the lower and upper boundaries of the wood in the HSV color space
@@ -76,9 +84,18 @@ wood_upper = np.array([175,255,255])
 
 #grab reference to webcam front(0) back(1)
 webcam = cv2.VideoCapture(1)
+#change resolution to 1280x720
+webcam.set(3,1280)
+webcam.set(4,720)
 
 #grab the current frame
-grabbed, frame = webcam.read()
+grabbed, frame0 = webcam.read()
+#undistort
+h,w = frame0.shape[:2]
+print((h,w))
+newCameraMatrix, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix,distCoeffs,(w,h),1,(w,h))
+frame = cv2.undistort(frame0,cameraMatrix,distCoeffs,None,newCameraMatrix)
+
 #print(frame.shape)
 i=0
 #while a frame is grabbed
@@ -105,24 +122,35 @@ while grabbed:
     #draw the contours on the frame. -1 draws all of them.
     cv2.drawContours(frame,contours,-1,(0,180,180),2)
     cv2.drawContours(blurred,contours,-1,(0,180,180),2)
-    cv2.imshow("frame",frame)
 
     bot_pix = findBotPixel(contours)
     #finding (x*,y*) of bottom pixel
     xyzPoint = getLocalObjPos(bot_pix)
-    
-    
-    filewriter.writerow([x_real,y_real,0,bot_pix[0],bot_pix[1],xyzPoint[0][0],xyzPoint[1][0]-2,xyzPoint[2][0]])
-    
+
+    print([x_real,y_real,xyzPoint[0][0],xyzPoint[1][0]])    
+    if not -2<=x_real-xyzPoint[0][0]<=2:
+    	print("Not match")
+    	if i == 0:
+        	for i in range(5):
+        		webcam.read()
+    elif not -2<=y_real-xyzPoint[1][0]<=2:
+    	print("Not match")
+    	if i == 0:
+        	for i in range(5):
+        		webcam.read()
+    else:
+	    filewriter.writerow([x_real,y_real,0,bot_pix[0],bot_pix[1],xyzPoint[0][0],xyzPoint[1][0],xyzPoint[2][0]])
+	    i+=1
+	    if i==500:
+		i=0
+	    
     cv2.waitKey(25)
-         
-     #grab the next "current" frame
-    grabbed, frame = webcam.read()
-    #wait 25miliseconds
     
-    i+=1
-    if i==499:
-        i=0
+    cv2.imshow("frame",frame)
+    #grab the next "current" frame
+    grabbed, frame = webcam.read()
+    
+    #undistort
 cv2.destroyAllWindows()
 webcam.release()
 
