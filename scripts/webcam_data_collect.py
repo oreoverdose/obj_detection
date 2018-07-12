@@ -5,14 +5,18 @@ import cv2
 import csv
 
 def findBotPixel (contours):
+     pixl_list = [[0,0]]
      if not contours:
-          return([0,0])
+          bottom_pixel = [0,0]
      else:
           bottom_pixel = [0,0]
      for pixel in contours:
-          for ycord in pixel:
-               if bottom_pixel[1]<ycord[0][1]:
-                    bottom_pixel = ycord[0]
+	for ycord in pixel:
+		if pixl_list[0][1]<ycord[0][1]:
+			pixl_list = [[ycord[0][0],ycord[0][1]]]
+		elif pixl_list[0][1]==ycord[0][1]:
+			pixl_list.append(ycord[0])
+     bottom_pixel = pixl_list[int(len(pixl_list)/2)]
      return(bottom_pixel)
           
 def getLocalObjPos(pix):
@@ -53,7 +57,7 @@ objectPoints = 2*np.array([
 imagePoints = np.array([
 	np.array([5.,673.],np.float32),
 	np.array([1258.,667.],np.float32),
-	np.array([227.,226.],np.float32),
+	np.array([278.,226.],np.float32),
 	np.array([974.,216.],np.float32),
 	np.array([1079.,375.],np.float32),
 	np.array([178.,385.],np.float32),
