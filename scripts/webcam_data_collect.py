@@ -58,7 +58,7 @@ imagePoints = np.array([
 	np.array([5.,673.],np.float32),
 	np.array([1258.,667.],np.float32),
 	np.array([278.,226.],np.float32),
-	np.array([974.,216.],np.float32),
+	np.array([977.,216.],np.float32),
 	np.array([1079.,375.],np.float32),
 	np.array([178.,385.],np.float32),
 	np.array([623.,375.],np.float32),
