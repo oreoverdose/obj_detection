@@ -55,21 +55,21 @@ objectPoints = 2*np.array([
 	np.array([0,0,0.],np.float32)],np.float32)
 	
 imagePoints = np.array([
-	np.array([5.,673.],np.float32),
-	np.array([1258.,667.],np.float32),
-	np.array([278.,226.],np.float32),
-	np.array([977.,216.],np.float32),
-	np.array([1079.,375.],np.float32),
-	np.array([178.,385.],np.float32),
-	np.array([623.,375.],np.float32),
-	np.array([622.,223.],np.float32),
-	np.array([623,672.],np.float32)],np.float32)
+	np.array([82.,625.],np.float32),
+	np.array([1247.,622.],np.float32),
+	np.array([301.,149.],np.float32),
+	np.array([1002.,133.],np.float32),
+	np.array([1097.,308.],np.float32),
+	np.array([215.,324.],np.float32),
+	np.array([646.,320.],np.float32),
+	np.array([645.,140.],np.float32),
+	np.array([650,622.],np.float32)],np.float32)
 			
 retval,rvec,tvec = cv2.solvePnP(objectPoints,imagePoints,cameraMatrix,distCoeffs)
 rotationMatrix,jacobian=cv2.Rodrigues(rvec)
 
 
-file = open('webcam_data_adj','a')
+file = open('webcam_data_robo2','a')
 filewriter = csv.writer(file,delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
 
 #define the lower and upper boundaries of the wood in the HSV color space
