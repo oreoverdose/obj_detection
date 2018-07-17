@@ -43,33 +43,23 @@ cameraMatrix = np.array([
 	np.array([0.,0.,1],np.float64)],np.float64)
 distCoeffs = np.array([np.array([0.07580839,-0.24187201,-0.00365459,-0.0003942,0.10928811],np.float64)],np.float64)
 	
-objectPoints = 2*np.array([
-	np.array([-13.5,0.,0.],np.float32),
-	np.array([13.5,0.,0.],np.float32),
-	np.array([-13.5,22,0.],np.float32),
-	np.array([13.5,22,0.],np.float32),
-	np.array([13.5,11.,0.],np.float32),
-	np.array([-13.5,11.,0.],np.float32),
-	np.array([0,11,0.],np.float32),
-	np.array([0,22,0.],np.float32),
-	np.array([0,0,0.],np.float32)],np.float32)
+objectPoints = np.array([
+	np.array([-4.,18.,0.],np.float32),
+	np.array([4.,18.,0.],np.float32),
+	np.array([-4,26,0.],np.float32),
+	np.array([4,26,0.],np.float32)],np.float32)
 	
 imagePoints = np.array([
-	np.array([82.,625.],np.float32),
-	np.array([1247.,622.],np.float32),
-	np.array([301.,149.],np.float32),
-	np.array([1002.,133.],np.float32),
-	np.array([1097.,308.],np.float32),
-	np.array([215.,324.],np.float32),
-	np.array([646.,320.],np.float32),
-	np.array([645.,140.],np.float32),
-	np.array([650,622.],np.float32)],np.float32)
+	np.array([528.,315.],np.float32),
+	np.array([666.,316.],np.float32),
+	np.array([532.,230.],np.float32),
+	np.array([658.,233.],np.float32)],np.float32)
 			
 retval,rvec,tvec = cv2.solvePnP(objectPoints,imagePoints,cameraMatrix,distCoeffs)
 rotationMatrix,jacobian=cv2.Rodrigues(rvec)
 
 
-file = open('webcam_data_robo2','a')
+file = open('webcam_no_filter_red','a')
 filewriter = csv.writer(file,delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIMAL)
 
 #define the lower and upper boundaries of the wood in the HSV color space
@@ -78,9 +68,12 @@ filewriter = csv.writer(file,delimiter=',',quotechar='|',quoting=csv.QUOTE_MINIM
         #hsv_green = cv2.cvtColor(green,cv2.COLOR_BGR2HSV)
         #print hsv_green
         #[H-10,100,100] and [H+10,255,255]
+#red
+wood_lower = np.array([0,170,50])
+wood_upper = np.array([190,255,255])
 #purple
-wood_lower = np.array([125,60,50])
-wood_upper = np.array([175,255,255])
+#wood_lower = np.array([125,60,50])
+#wood_upper = np.array([175,255,255])
 #blue
 #wood_lower = np.array([95,60,60])
 #wood_upper = np.array([120,255,255])
@@ -105,12 +98,13 @@ i=0
 #while a frame is grabbed
 while grabbed:
     if i==0:
+    	print("mooo")
         x_real = input("x:")
         y_real = input("y:")
-    #blur
-    blurred=cv2.GaussianBlur(frame,(11,11),0)
+        for j in range(10):
+		grabbed, frame = webcam.read()
     #convert to the HSV color space
-    hsv = cv2.cvtColor(blurred,cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
 
     #construct a mask for the color "wood"
     mask = cv2.inRange(hsv,wood_lower,wood_upper)
@@ -125,28 +119,17 @@ while grabbed:
 
     #draw the contours on the frame. -1 draws all of them.
     cv2.drawContours(frame,contours,-1,(0,180,180),2)
-    cv2.drawContours(blurred,contours,-1,(0,180,180),2)
 
     bot_pix = findBotPixel(contours)
     #finding (x*,y*) of bottom pixel
     xyzPoint = getLocalObjPos(bot_pix)
 
-    print([x_real,y_real,xyzPoint[0][0],xyzPoint[1][0]])    
-    if not -2<=x_real-xyzPoint[0][0]<=2:
-    	print("Not match")
-    	if i == 0:
-        	for i in range(5):
-        		webcam.read()
-    elif not -2<=y_real-xyzPoint[1][0]<=2:
-    	print("Not match")
-    	if i == 0:
-        	for i in range(5):
-        		webcam.read()
-    else:
-	    filewriter.writerow([x_real,y_real,0,bot_pix[0],bot_pix[1],xyzPoint[0][0],xyzPoint[1][0],xyzPoint[2][0]])
-	    i+=1
-	    if i==500:
-		i=0
+    print([i,x_real,y_real,xyzPoint[0][0],xyzPoint[1][0]])    
+    filewriter.writerow([x_real,y_real,0,bot_pix[0],bot_pix[1],xyzPoint[0][0],xyzPoint[1][0],xyzPoint[2][0]])
+    i+=1
+    if i==500:
+    	print("meow")
+	i=0
 	    
     cv2.waitKey(25)
     
