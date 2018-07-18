@@ -5,11 +5,11 @@ import numpy as np
 import sys
 import cv2
 import rospy
-from geometry_msgs.msg import Point
+from std_msgs.msg import Float32MultiArray
 
 class image_converter:
 	def __init__(self):
-		self.coord_pub = rospy.Publisher("bottom_pixels",Int16MultiArray,queue_size=1)
+		self.coord_pub = rospy.Publisher("obj_pos",Float32MultiArray,queue_size=1)
 		
 		cameraMatrix = np.array([
 			np.array([1328.51479,0.,601.225024],np.float64),
@@ -53,10 +53,10 @@ class image_converter:
 		#wood_upper = np.array([120,255,255])
 
 			
-	def findBotPixel (contours):
+	def findBotPixel (self,contours):
 	     pixl_list = [[0,0]]
 	     if not contours:
-		  bottom_pixel = [0,0]
+		  bottom_pixel = [-100,-100]
 	     else:
 		  bottom_pixel = [0,0]
 	     for pixel in contours:
@@ -68,7 +68,7 @@ class image_converter:
 	     bottom_pixel = pixl_list[int(len(pixl_list)/2)]
 	     return(bottom_pixel)
 		  
-	def getLocalObjPos(pix):
+	def getLocalObjPos(self,pix):
 		#pixel position turns into uvPoint
 		uvPoint = np.array([
 			np.array([pix[0]],np.float32),
@@ -113,7 +113,7 @@ def main(args):
 	    mask=cv2.erode(mask,None,iterations=2)
 	    mask = cv2.dilate(mask,None, iterations =2)
 
-	    #find contours in the mask (????????????)
+	    #find contours in the mask
 	    #findContours returns 3 values, returns the boundaries of the white mask
 	    _, contours, _ = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
 
@@ -121,9 +121,13 @@ def main(args):
 	    cv2.drawContours(frame,contours,-1,(0,180,180),2)
 	    cv2.drawContours(blurred,contours,-1,(0,180,180),2)
 
-	    bot_pix = findBotPixel(contours)
+	    bot_pix = ic.findBotPixel(contours)
 	    #finding (x*,y*) of bottom pixel
-	    xyzPoint = getLocalObjPos(bot_pix)
+	    xyzPoint = ic.getLocalObjPos(bot_pix)
+	    #make sure we only publish when object has been found
+	    if not xyzPoint[1] <= -10:
+	    	ic.publish(data=xyzPoint)
+	    
 
 	
 if __name__ == '__main__':
